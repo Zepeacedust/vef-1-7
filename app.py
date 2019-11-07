@@ -1,7 +1,12 @@
 from flask import Flask, render_template as rend
-import hashlib, binascii, os
+import hashlib, binascii, os, pymysql,secrets
 app = Flask(__name__)
  
+
+#alltaf gaman að fara overboard
+app.secret_key = secrets.token_hex(2048)
+
+##stal smá kóða af fólki sem veit betur
 def hash_password(password):
     #Hash a password for storing.
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
@@ -18,8 +23,15 @@ def verify_password(stored_password, provided_password):
     return pwdhash == stored_password
 
 @app.route('/')
-def hello():
-    return 'Hello World!'
+def index():
+    #todo setja up user verification
+    user = {"name":"kalli","pass":"pass","email":"kallik@fkmail.is"}
+    return rend("index.html", user=user)
+
+@app.route("/login")
+def login():
+    #todo setja upp logins
+    return index()
 
 if __name__ == '__main__':
     app.run()
