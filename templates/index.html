@@ -2,9 +2,8 @@
 {% block title %}Index{% endblock %}
 {% block content %}
 {% if user.name != None %}
-
-<p>
-    honk
-</p>
+<p>Halló {{user.name}}</p>
+{% else %}
+ <!-- ToDo logins -->
 {% endif %}
 {% endblock %}
