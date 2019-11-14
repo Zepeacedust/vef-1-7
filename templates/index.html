@@ -4,6 +4,7 @@
 {% if user.name != None %}
 <p>Halló {{user.name}}</p>
 {% else %}
- <!-- ToDo logins -->
+<a href="/login">Login</a>
+<a href="/signup">Sign up</a>
 {% endif %}
 {% endblock %}
