@@ -34,15 +34,18 @@ def verify():
      
 @app.route('/')
 def index():
-    #todo setja up user verification
-    if ~("user" in session):
-        user = {"name":None,"pass":None,"email":None}
+    if "user" not in session.keys():
+        user = {"uname":None,"pass":None,"nafn":None}
     else:
         user = session["user"]
+    print(user)
+    print(session)
+    print(session.keys())
     return rend("index.html", user=user)
 @app.route("/signup")
 def signup():
     return rend("signup.html",code=None)
+
 @app.route("/signup/create",methods=['POST'])
 def addusr():
     r=request.form
@@ -53,28 +56,41 @@ def addusr():
         pass
     cursor.execute("""INSERT INTO users (user, pass, nafn) VALUES
     (%s, %s, %s);""" % 
-    (connection.escape(request.form['username']),
-    connection.escape(hash_password(request.form['password'])),
-    connection.escape(request.form['name'])))
+    (connection.escape(r['username']),
+    connection.escape(hash_password(r['password'])),
+    connection.escape(r['name'])))
     return rend("signup.html",code=0)
 
 @app.route("/login")
 def login_page():
     return rend("login.html",code = None)
+
 @app.route("/login/process",methods=['POST'])
 def login():
     r=request.form
     cursor.execute("""select * from users where user=%s;""" % (
-        connection.escape(request.form['username'])))
+        connection.escape(r['username'])))
     rows = cursor.fetchall()
-    if rows:
+    if rows!=():
         user = rows[0]
-        session["user"] = {"name":user[0],"pass":user[1],"nafn":user[2]}
-        print(user)
+        if verify_password(user[2],r["password"]):
+            session["user"] = {"uname":user[0],"nafn":user[1],"pass":user[2]}
+            print(session["user"])
+        else: 
+            return rend("login.html", code=1)
     else: 
-        print("no")
+        print(rows)
         return rend("login.html", code=1)
     return rend("login.html", code=0)
-
+@app.route("/account")
+def account():
+    if "user" in session.keys():
+        if session["user"]["uname"] != None:
+            return rend("account.html", user = session["user"])
+    return index()
+@app.route("/logout")
+def logout():
+    session["user"] ={"uname":None,"pass":None,"nafn":None}
+    return index()
 if __name__ == '__main__':
     app.run()
